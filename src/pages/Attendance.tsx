@@ -32,15 +32,30 @@ import { Input } from "@/components/ui/input";
 import { CalendarClock } from "lucide-react";
 import { format } from "date-fns";
 
+// Define attendance status type
+type AttendanceStatus = "present" | "absent" | "late" | "half-day";
+
+// Define the attendance record interface
+interface AttendanceRecord {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  date: Date;
+  status: AttendanceStatus;
+  checkInTime: string;
+  checkOutTime: string;
+}
+
 // Mock attendance data
-const mockAttendanceRecords = [
+const mockAttendanceRecords: AttendanceRecord[] = [
   {
     id: "1",
     employeeId: "1",
     employeeName: "Alex Johnson",
     department: "Engineering",
     date: new Date(),
-    status: "present" as const,
+    status: "present",
     checkInTime: "09:00 AM",
     checkOutTime: "05:30 PM",
   },
@@ -50,7 +65,7 @@ const mockAttendanceRecords = [
     employeeName: "Sarah Wilson",
     department: "Marketing",
     date: new Date(),
-    status: "present" as const,
+    status: "present",
     checkInTime: "08:45 AM",
     checkOutTime: "05:15 PM",
   },
@@ -60,7 +75,7 @@ const mockAttendanceRecords = [
     employeeName: "Michael Brown",
     department: "Finance",
     date: new Date(),
-    status: "absent" as const,
+    status: "absent",
     checkInTime: "",
     checkOutTime: "",
   },
@@ -70,7 +85,7 @@ const mockAttendanceRecords = [
     employeeName: "Emily Davis",
     department: "HR",
     date: new Date(),
-    status: "late" as const,
+    status: "late",
     checkInTime: "10:15 AM",
     checkOutTime: "06:00 PM",
   },
@@ -80,7 +95,7 @@ const mockAttendanceRecords = [
     employeeName: "David Martinez",
     department: "Engineering",
     date: new Date(),
-    status: "present" as const,
+    status: "present",
     checkInTime: "09:05 AM",
     checkOutTime: "05:45 PM",
   },
@@ -90,13 +105,19 @@ const mockAttendanceRecords = [
     employeeName: "Jennifer Lee",
     department: "Operations",
     date: new Date(),
-    status: "half-day" as const,
+    status: "half-day",
     checkInTime: "09:00 AM",
     checkOutTime: "01:30 PM",
   },
 ];
 
-const employees = [
+interface Employee {
+  id: string;
+  name: string;
+  department: string;
+}
+
+const employees: Employee[] = [
   { id: "1", name: "Alex Johnson", department: "Engineering" },
   { id: "2", name: "Sarah Wilson", department: "Marketing" },
   { id: "3", name: "Michael Brown", department: "Finance" },
@@ -105,22 +126,29 @@ const employees = [
   { id: "6", name: "Jennifer Lee", department: "Operations" },
 ];
 
+interface FormValues {
+  employeeId: string;
+  status: AttendanceStatus;
+  checkInTime: string;
+  checkOutTime: string;
+}
+
 const Attendance = () => {
-  const [attendanceRecords, setAttendanceRecords] = useState(mockAttendanceRecords);
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(mockAttendanceRecords);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const [date, setDate] = useState<Date>(new Date());
   
-  const form = useForm({
+  const form = useForm<FormValues>({
     defaultValues: {
       employeeId: "",
-      status: "present" as const,
+      status: "present",
       checkInTime: "",
       checkOutTime: "",
     },
   });
   
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: FormValues) => {
     // Generate a new ID for the record
     const newId = `${attendanceRecords.length + 1}`;
     
@@ -129,13 +157,13 @@ const Attendance = () => {
     
     if (employee) {
       // Create a new attendance record
-      const newRecord = {
+      const newRecord: AttendanceRecord = {
         id: newId,
         employeeId: data.employeeId,
         employeeName: employee.name,
         department: employee.department,
         date: date,
-        status: data.status as "present" | "absent" | "late" | "half-day",
+        status: data.status,
         checkInTime: data.checkInTime || "",
         checkOutTime: data.checkOutTime || "",
       };

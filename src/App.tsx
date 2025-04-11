@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
-import { Helmet, HelmetProvider as ReactHelmetProvider } from "react-helmet";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 
 // Import Pages
 import Login from "./pages/Login";
@@ -26,7 +26,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ReactHelmetProvider>
+  <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
@@ -108,7 +108,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
-  </ReactHelmetProvider>
+  </HelmetProvider>
 );
 
 export default App;
