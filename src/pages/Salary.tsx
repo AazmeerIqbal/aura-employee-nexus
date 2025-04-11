@@ -33,6 +33,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format, parse } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
+// Update the type definition to match the form schema
+type SalaryType = "monthly" | "annual" | "hourly";
+
 // Mock salary data
 const mockSalaryRecords = [
   {
@@ -44,7 +47,7 @@ const mockSalaryRecords = [
     amount: 95000,
     currency: "USD",
     effectiveDate: new Date(2023, 3, 1), // April 1, 2023
-    type: "annual" as const,
+    type: "annual" as SalaryType,
     status: "active" as const,
   },
   {
@@ -56,7 +59,7 @@ const mockSalaryRecords = [
     amount: 85000,
     currency: "USD",
     effectiveDate: new Date(2023, 1, 15), // Feb 15, 2023
-    type: "annual" as const,
+    type: "annual" as SalaryType,
     status: "active" as const,
   },
   {
@@ -68,7 +71,7 @@ const mockSalaryRecords = [
     amount: 110000,
     currency: "USD",
     effectiveDate: new Date(2023, 5, 1), // June 1, 2023
-    type: "annual" as const,
+    type: "annual" as SalaryType,
     status: "active" as const,
   },
   {
@@ -80,7 +83,7 @@ const mockSalaryRecords = [
     amount: 78000,
     currency: "USD",
     effectiveDate: new Date(2023, 2, 10), // March 10, 2023
-    type: "annual" as const,
+    type: "annual" as SalaryType,
     status: "active" as const,
   },
   {
@@ -92,7 +95,7 @@ const mockSalaryRecords = [
     amount: 98500,
     currency: "USD",
     effectiveDate: new Date(2023, 7, 1), // Aug 1, 2023
-    type: "annual" as const,
+    type: "annual" as SalaryType,
     status: "active" as const,
   },
   {
@@ -104,10 +107,24 @@ const mockSalaryRecords = [
     amount: 90000,
     currency: "USD",
     effectiveDate: new Date(2023, 8, 15), // Sept 15, 2023
-    type: "annual" as const,
+    type: "annual" as SalaryType,
     status: "active" as const,
   },
 ];
+
+// Define the SalaryRecord type
+interface SalaryRecord {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  employeeImage: string;
+  department: string;
+  amount: number;
+  currency: string;
+  effectiveDate: Date;
+  type: SalaryType;
+  status: "active";
+}
 
 // Mock employees for dropdown
 const employees = [
@@ -130,9 +147,9 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const Salary = () => {
-  const [salaryRecords, setSalaryRecords] = useState(mockSalaryRecords);
+  const [salaryRecords, setSalaryRecords] = useState<SalaryRecord[]>(mockSalaryRecords);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editRecord, setEditRecord] = useState<any>(null);
+  const [editRecord, setEditRecord] = useState<SalaryRecord | null>(null);
   const { toast } = useToast();
   
   const form = useForm<FormData>({
@@ -198,7 +215,7 @@ const Salary = () => {
         });
       } else {
         // Add new record
-        const newRecord = {
+        const newRecord: SalaryRecord = {
           id: `${salaryRecords.length + 1}`,
           employeeId: data.employeeId,
           employeeName: employee.name,
@@ -208,7 +225,7 @@ const Salary = () => {
           currency: data.currency,
           effectiveDate: parse(data.effectiveDate, "yyyy-MM-dd", new Date()),
           type: data.type,
-          status: "active" as const,
+          status: "active",
         };
         setSalaryRecords([...salaryRecords, newRecord]);
         toast({

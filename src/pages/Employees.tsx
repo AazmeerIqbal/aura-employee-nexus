@@ -15,7 +15,7 @@ const mockEmployees = [
     email: "alex.j@example.com",
     department: "Engineering",
     role: "Frontend Developer",
-    status: "active",
+    status: "active" as const,
     joinedDate: "April 12, 2023",
     image: "",
   },
@@ -25,7 +25,7 @@ const mockEmployees = [
     email: "sarah.w@example.com",
     department: "Marketing",
     role: "Marketing Specialist",
-    status: "active",
+    status: "active" as const,
     joinedDate: "January 5, 2023",
     image: "",
   },
@@ -35,7 +35,7 @@ const mockEmployees = [
     email: "michael.b@example.com",
     department: "Finance",
     role: "Financial Analyst",
-    status: "inactive",
+    status: "inactive" as const,
     joinedDate: "June 18, 2022",
     image: "",
   },
@@ -45,7 +45,7 @@ const mockEmployees = [
     email: "emily.d@example.com",
     department: "HR",
     role: "HR Specialist",
-    status: "on-leave",
+    status: "on-leave" as const,
     joinedDate: "March 10, 2022",
     image: "",
   },
@@ -55,7 +55,7 @@ const mockEmployees = [
     email: "david.m@example.com",
     department: "Engineering",
     role: "Backend Developer",
-    status: "active",
+    status: "active" as const,
     joinedDate: "August 22, 2023",
     image: "",
   },
@@ -65,7 +65,7 @@ const mockEmployees = [
     email: "jennifer.l@example.com",
     department: "Operations",
     role: "Operations Manager",
-    status: "active",
+    status: "active" as const,
     joinedDate: "September 15, 2023",
     image: "",
   },
@@ -73,19 +73,31 @@ const mockEmployees = [
 
 type View = "list" | "add" | "edit" | "view";
 
+// Define proper employee type to match EmployeeTable expectations
+interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  role: string;
+  status: "active" | "inactive" | "on-leave";
+  joinedDate: string;
+  image: string;
+}
+
 const Employees = () => {
-  const [employees, setEmployees] = useState(mockEmployees);
+  const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
   const [currentView, setCurrentView] = useState<View>("list");
-  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   
-  const handleViewEmployee = (employee: any) => {
+  const handleViewEmployee = (employee: Employee) => {
     setSelectedEmployee(employee);
     setCurrentView("view");
   };
   
-  const handleEditEmployee = (employee: any) => {
+  const handleEditEmployee = (employee: Employee) => {
     setSelectedEmployee(employee);
     setCurrentView("edit");
   };
@@ -112,9 +124,16 @@ const Employees = () => {
     
     if (currentView === "add") {
       // Generate a random ID (in a real app, the backend would do this)
-      const newEmployee = {
+      const newEmployee: Employee = {
         ...data,
         id: `${employees.length + 1}`,
+        status: data.status as "active" | "inactive" | "on-leave" || "active",
+        role: data.role || "",
+        email: data.email || "",
+        department: data.department || "",
+        joinedDate: data.joinedDate || new Date().toLocaleDateString(),
+        image: data.image || "",
+        name: data.name || "",
       };
       setEmployees([...employees, newEmployee]);
       toast({
@@ -124,7 +143,11 @@ const Employees = () => {
     } else if (currentView === "edit" && selectedEmployee) {
       setEmployees(
         employees.map((emp) =>
-          emp.id === selectedEmployee.id ? { ...emp, ...data } : emp
+          emp.id === selectedEmployee.id ? { 
+            ...emp, 
+            ...data, 
+            status: data.status as "active" | "inactive" | "on-leave" || emp.status 
+          } : emp
         )
       );
       toast({
